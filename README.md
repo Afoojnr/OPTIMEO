@@ -1,9 +1,15 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15308437.svg)](https://doi.org/10.5281/zenodo.15308437)
 [![paper](https://joss.theoj.org/papers/5df5fbe4e131d230b13fb3c98db545d8/status.svg)](https://joss.theoj.org/papers/5df5fbe4e131d230b13fb3c98db545d8)
+[![PyPI - Version](https://img.shields.io/pypi/v/optimeo)](https://pypi.org/project/optimeo/)
 [![Tests](https://github.com/colinbousige/OPTIMEO/actions/workflows/python-app.yml/badge.svg)](https://github.com/colinbousige/OPTIMEO/actions/workflows/python-app.yml)
-[![Documentation](https://github.com/colinbousige/OPTIMEO/actions/workflows/build-docs.yml/badge.svg)](https://colinbousige.github.io/OPTIMEO/optimeo.html)
+[![Documentation](https://github.com/colinbousige/OPTIMEO/actions/workflows/build-docs.yml/badge.svg)](https://colinbousige.github.io/OPTIMEO/)
 
-# OPTIMEO – Bayesian Optimization Web App for Process Tuning, Modeling, and Orchestration <img src="resources/logo.png" width="100"/>
+
+# OPTIMEO – Bayesian Optimization Web App for Process Tuning, Modeling, and Orchestration
+
+<p align="center">
+    <img src="https://raw.githubusercontent.com/colinbousige/OPTIMEO/main/optimeo/app/resources/logo.png" alt="OPTIMEO logo" width="320" />
+</p>
 
 ## About this package
 
@@ -15,7 +21,12 @@ This package was developed within the frame of an academic research project, MOF
 
 ## Documentation
 
-The package documentation is available [here](https://colinbousige.github.io/OPTIMEO/optimeo.html).
+The package documentation is available [here](https://colinbousige.github.io/OPTIMEO/).
+It is generated automatically by the GitHub Actions workflow on pushes to `main` and published to GitHub Pages.
+
+## Changelog
+
+Release notes are available in [CHANGELOG.md](CHANGELOG.md).
 
 ## Installation
 
@@ -23,67 +34,70 @@ The package documentation is available [here](https://colinbousige.github.io/OPT
 
 Installing the package and its dependencies should take up about 1.3 GB on your hard disk, the main "heavy" dependencies being `botorch`, `scikit_learn`, `plotly`, `scipy`, `pandas` and `streamlit`.
 
-It should be easy enough with `pip`:
+#### Recommended: install from PyPI with uv
 
 ```bash
-git clone https://github.com/colinbousige/OPTIMEO.git
-cd OPTIMEO
-# Otional: create a virtual environment
-python -m venv venv
-source venv/bin/activate # on Linux or MacOS
-# Then, install OPTIMEO as a package:
-pip install .
+uv venv .venv --python 3.11
+source .venv/bin/activate # Linux / macOS
+uv pip install optimeo
 ```
 
-If you did `pip install .`, you can upgrade to new a version or uninstall with:
+This installs OPTIMEO from PyPI and registers the `optimeo` command in your environment.
+
+#### Alternative: install from PyPI with pip
 
 ```bash
-# upgrade the optimeo package
-cd OPTIMEO
-pip install --upgrade .
-# uninstall the optimeo package
+python -m venv .venv
+source .venv/bin/activate # Linux / macOS
+python -m pip install --upgrade pip
+python -m pip install optimeo
+```
+
+#### Install from GitHub
+
+To install the latest code directly from the repository, use:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate # Linux / macOS
+python -m pip install "git+https://github.com/colinbousige/OPTIMEO.git"
+```
+
+You can upgrade or uninstall when using pip:
+
+```bash
+python -m pip install --upgrade optimeo
 pip uninstall optimeo
 ```
 
-### Using the web app
+### Launching the web app
 
-- You can use the app directly on its [Streamlit.io web page](https://optimeo.streamlit.app/), but it might be a bit slow if you have a lot of data to process. 
-
-- If you'd rather run this app on your local machine (which will most probably make it faster than running it on streamlit.io), you can do so by running the following command in your terminal:
+After installation, run:
 
 ```bash
-git clone https://github.com/colinbousige/OPTIMEO.git
-cd OPTIMEO
-# Otional: create a virtual environment
-python -m venv venv
-source venv/bin/activate # on Linux or MacOS
-# Then, install the required packages:
-pip install -r requirements.txt # to install the required packages
+optimeo
 ```
 
-Finally, you can run the app by running the following command in your terminal:
+If the command is not found, activate the environment first:
 
 ```bash
-streamlit run Home.py
+source .venv/bin/activate # Linux / macOS
+optimeo
 ```
 
-- You can also modify the path to the `OPTIMEO` folder in `OPTIMEO/bin/optimeo`. Then, doing the following will add the `optimeo` command to your `PATH`:
+If you encounter Streamlit watcher errors related to `torch.classes` (for example `Examining the path of torch.classes raised`), OPTIMEO now starts Streamlit with file watching disabled by default. To override this behavior manually, run:
 
 ```bash
-git clone https://github.com/colinbousige/OPTIMEO.git
-cd OPTIMEO
-pip install . # to install OPTIMEO as a package
-chmod +x bin/optimeo
-ln -s $(pwd)/bin/optimeo /usr/local/bin/optimeo # or any folder in your PATH
+optimeo --server.fileWatcherType=auto
 ```
 
-So now, you just have to run `optimeo` in your terminal to run the app.
+You can also use the hosted app directly: [https://optimeo.streamlit.app/](https://optimeo.streamlit.app/). Local execution is recommended for larger datasets.
 
 ## Usage
 
 ### With the web app
 
-You can use the app directly on its [Streamlit.io web page](https://optimeo.streamlit.app/), or run it locally (see [Installation](#installation)). **It is recommended to run it locally if you have a lot of data to process, as it will be much faster.**
+You can use the app on [Streamlit.io](https://optimeo.streamlit.app/) or run it locally (see [Installation](#installation)). Local execution is recommended if you process many rows or use heavier BO/modeling tasks.
 
 Choose the page you want to use in the sidebar, and follow the instructions. Hover the mouse on the question marks to get more information about the parameters.
 
@@ -91,10 +105,37 @@ Choose the page you want to use in the sidebar, and follow the instructions. Hov
 Generate a Design of Experiment (DoE) for the optimization of your process. Depending on the number of factors and levels, you can choose between different types of DoE, such as Sobol sequence, Full Factorial, Fractional Factorial, or Definitive Screening Design.
 
 **2. New experiments using Bayesian Optimization:**  
-From a previous set of experiments and their results, generate a new set of experiments to optimize your process. You can use up to 10 outcomes, of which 2 can be objectives (i.e. outcomes that you want to minimize or maximize) and the outcomes that are not objectives can be constrained.  
+From a previous set of experiments and their results, generate a new set of experiments to optimize your process. You can define up to 10 outcomes. Any subset of outcomes can be marked as optimization objectives (maximize/minimize), and the others can be used as constraints.
+
+The BO page also provides model interpretation plots, including Ax Sensitivity Analysis. Each plot can be downloaded as JSON with its plotted data and layout; the file includes a commented Python example for loading and displaying the figure with Plotly.
 
 **3. Data analysis and modeling:**  
 Analyze the results of your experiments and model the response of your process.
+
+### Quick local workflow from a clone
+
+Create the `.venv` environment, activate it, install the project, then launch the app:
+
+```bash
+git clone https://github.com/colinbousige/OPTIMEO.git
+cd OPTIMEO
+python -m venv .venv
+source .venv/bin/activate # Linux / macOS
+python -m pip install --upgrade pip
+python -m pip install -e .
+optimeo
+```
+
+If you prefer uv:
+
+```bash
+git clone https://github.com/colinbousige/OPTIMEO.git
+cd OPTIMEO
+uv venv .venv --python 3.11
+source .venv/bin/activate # Linux / macOS
+uv sync
+optimeo
+```
 
 ### With the Python package
 

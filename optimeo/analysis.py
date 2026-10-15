@@ -4,18 +4,18 @@
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the MIT License as published by
 # the Free Software Foundation, either version 3 of the License, or
-# any later version. 
+# any later version.
 
 """
 The analysis module provides tools for data analysis and regression modeling.
-The main workhorse is the `DataAnalysis` class, which allows for encoding categorical variables, performing regression analysis, and visualizing results.
+The main workhorse is the ``DataAnalysis`` class, which allows for encoding categorical variables, performing regression analysis, and visualizing results.
 
-It supports both linear regression using the `statsmodels` package and machine learning models from `sklearn`.
+It supports both linear regression using the ``statsmodels`` package and machine learning models from ``sklearn``.
 The class also provides methods for plotting Q-Q plots, box plots, histograms, and scatter plots.
 It includes functionality for bootstrap resampling to estimate the variability of model coefficients.
-The `DataAnalysis` class is designed to be flexible and extensible, allowing users to customize the regression analysis process.
+The ``DataAnalysis`` class is designed to be flexible and extensible, allowing users to customize the regression analysis process.
 
-You can see an example notebook [here](../examples/MLanalysis.ipynb).
+You can see an example notebook `here <../examples/MLanalysis.ipynb>`_.
 
 """
 
@@ -46,6 +46,21 @@ class DataAnalysis:
     """
     This class is used to analyze the data and perform regression analysis.
 
+    Example
+    -------
+
+    .. code-block:: python
+
+        import pandas as pd
+        from optimeo.analysis import DataAnalysis
+
+        data = pd.read_csv('dataML.csv')
+        factors = data.columns[:-1].tolist()
+        response = data.columns[-1]
+        analysis = DataAnalysis(data, factors, response)
+        analysis.model_type = "ElasticNetCV"
+        analysis.compute_ML_model()
+
     Parameters
     ----------
 
@@ -56,15 +71,15 @@ class DataAnalysis:
     response : str
         The response variable.
     split_size : float, optional
-        The proportion of the dataset to include in the test split. Default is `0.2`.
+        The proportion of the dataset to include in the test split. Default is ``0.2``.
     model_type : str, optional
-        The type of machine learning model to use. Default is None. 
-        Must be one of the following: `"ElasticNetCV"`, `"RidgeCV"`,
-        `"LinearRegression"`, `"RandomForest"`, `"GaussianProcess"`, `"GradientBoosting"`.
-    
+        The type of machine learning model to use. Default is ``None``. 
+        Must be one of the following: ``"ElasticNetCV"``, ``"RidgeCV"``,
+        ``"LinearRegression"``, ``"RandomForest"``, ``"GaussianProcess"``, ``"GradientBoosting"``.
+
     Attributes
     ----------
-    
+
     data : pd.DataFrame
         The input data.
     factors : list
@@ -78,7 +93,7 @@ class DataAnalysis:
     linear_model : object
         The linear model object.
     equation : str
-        The equation for the linear model, in the form `response ~ var1 + var2 + var1:var2`.
+        The equation for the linear model, in the form ``"response ~ var1 + var2 + var1:var2"``.
     model : object
         The machine learning model object.
     model_type : str
@@ -88,57 +103,40 @@ class DataAnalysis:
 
     Methods
     -------
-    
-    - **encode_data()**:
-        Encodes categorical variables in the data. Called during initialization.
-    - **plot_qq()**:
-        Plots a Q-Q plot for the response variable using `plotly`.
-    - **plot_boxplot()**:
-        Plots a boxplot for the response variable using `plotly`.
-    - **plot_histogram()**:
-        Plots a histogram for the response variable using `plotly`.
-    - **plot_scatter_response()**:
-        Plots a scatter plot for the response variable using `plotly`.
-    - **plot_corr()**:
-        Plots a correlation matrix for the data using `plotly`.
-    - **plot_pairplot_seaborn()**:
-        Plots a pairplot for the data using `seaborn`.
-    - **plot_pairplot_plotly()**:
-        Plots a pairplot for the data using `plotly`.
-    - **write_equation(order=1, quadratic=[])**:
-        Writes R-style equation for multivariate fitting procedure using the `statsmodels` package.
-    - **compute_linear_model(order=1, quadratic=[])**:
-        Computes the linear model using the `statsmodels` package.
-    - **plot_linear_model()**:
-        Plots the linear model using `plotly`.
-    - <b>compute_ML_model(**kwargs)</b>:
-        Computes the machine learning model using `sklearn`.
-    - **plot_ML_model(features_in_log=False)**:
-        Plots the machine learning model using `plotly`.
-    
-    Example
-    -------
-    
-    ```python
-    from optimeo.analysis import * 
+    encode_data()
+        Encode categorical variables in input data.
+    plot_qq()
+        Plot a Q-Q plot of residuals.
+    plot_boxplot()
+        Plot response distribution as boxplot.
+    plot_histogram()
+        Plot response distribution as histogram.
+    plot_scatter_response()
+        Plot scatter response against factors.
+    plot_corr()
+        Plot factor correlation matrix.
+    plot_pairplot_seaborn()
+        Generate pairplot with seaborn.
+    plot_pairplot_plotly()
+        Generate pairplot with plotly.
+    write_equation(order=1, quadratic=[])
+        Build formula string for statsmodels.
+    compute_linear_model(order=1, quadratic=[])
+        Fit linear model with statsmodels.
+    plot_linear_model()
+        Visualize linear model effects.
+    compute_ML_model(**kwargs)
+        Fit machine-learning model.
+    plot_ML_model(features_in_log=False)
+        Plot ML model response surfaces.
 
-    data = pd.read_csv('dataML.csv')
-    factors = data.columns[:-1].tolist()
-    response = data.columns[-1]
-    analysis = DataAnalysis(data, factors, response)
-    analysis.model_type = "ElasticNetCV"
-    MLmodel = analysis.compute_ML_model()
-    figs = analysis.plot_ML_model()
-    for fig in figs:
-        fig.show()
-    ```
     """
 
-    def __init__(self, 
-                 data: pd.DataFrame, 
-                 factors: list, 
-                 response: str, 
-                 split_size=.2, 
+    def __init__(self,
+                 data: pd.DataFrame,
+                 factors: list,
+                 response: str,
+                 split_size=.2,
                  model_type=None):
         self._dtypes = None
         self._encoders = {}
@@ -162,11 +160,11 @@ class DataAnalysis:
         if not isinstance(value, pd.DataFrame):
             raise ValueError("Data must be a pandas DataFrame.")
         self._data = value
-    
+
     def encode_data(self):
         """
         Called during initialization: encodes categorical variables in the data if there are any. 
-        Uses `LabelEncoder()` from `sklearn` to convert categorical variables to numerical values.
+        Uses ``LabelEncoder()`` from ``sklearn`` to convert categorical variables to numerical values.
         Also drops rows with NaN values.
         """
         self._dtypes = self._data.dtypes
@@ -174,13 +172,14 @@ class DataAnalysis:
             if self._dtypes[factor] == 'object':
                 le = LabelEncoder()
                 self._encoders[factor] = le
-                self._data[factor] = le.fit_transform([str(d) for d in self._data[factor]])
+                self._data[factor] = le.fit_transform(
+                    [str(d) for d in self._data[factor]])
         self.data = self.data[self._factors + [self._response]]
         self.data = self.data.dropna(axis=0, how='any')
 
     @property
     def factors(self):
-        """The list of names of the columns of the `data` DataFrame that contain factor variables."""
+        """The list of names of the columns of the ``data`` DataFrame that contain factor variables."""
         return self._factors
 
     @factors.setter
@@ -188,12 +187,12 @@ class DataAnalysis:
         if not isinstance(value, list):
             raise ValueError("Factors must be a list.")
         self._factors = value
-    
+
     @property
     def encoders(self):
         """The list of encoders for categorical variables."""
         return self._encoders
-    
+
     @encoders.setter
     def encoders(self, value):
         if not isinstance(value, dict):
@@ -231,7 +230,11 @@ class DataAnalysis:
 
     @property
     def equation(self):
-        """The equation for the linear model, in the form `response ~ var1 + var2 + var1:var2`. This is based on the [statsmodels package](https://www.statsmodels.org/dev/examples/notebooks/generated/formulas.html)."""
+        """The equation for the linear model, in the form ``"response ~ var1 + var2 + var1:var2"``.
+
+        See statsmodels formula examples:
+        https://www.statsmodels.org/dev/examples/notebooks/generated/formulas.html
+        """
         return self._equation
 
     @equation.setter
@@ -242,16 +245,16 @@ class DataAnalysis:
 
     @property
     def model_type(self):
-        """The type of machine learning model to use. Default is None. 
-            Must be one of the following: `"ElasticNetCV"`, `"RidgeCV"`,
-            `"LinearRegression"`, `"RandomForest"`, `"GaussianProcess"`, `"GradientBoosting"`."""
+        """The type of machine learning model to use. Default is ``None``. 
+            Must be one of the following: ``"ElasticNetCV"``, ``"RidgeCV"``,
+            ``"LinearRegression"``, ``"RandomForest"``, ``"GaussianProcess"``, ``"GradientBoosting"``."""
         return self._model_type
 
     @model_type.setter
     def model_type(self, value):
         if value is not None and value not in ["ElasticNetCV", "RidgeCV",
-                                                "LinearRegression", "RandomForest",
-                                                "GaussianProcess", "GradientBoosting"]:
+                                               "LinearRegression", "RandomForest",
+                                               "GaussianProcess", "GradientBoosting"]:
             raise ValueError("Model must be one of the following: "
                              "ElasticNetCV, RidgeCV, LinearRegression, "
                              "RandomForest, GaussianProcess, GradientBoosting.")
@@ -268,7 +271,7 @@ class DataAnalysis:
 
     @property
     def split_size(self):
-        """The proportion of the dataset to include in the test split. Default is `0.2`."""
+        """The proportion of the dataset to include in the test split. Default is ``0.2``."""
         return self._split_size
 
     @split_size.setter
@@ -361,7 +364,8 @@ class DataAnalysis:
         fig : plotly.graph_objs.Figure
             The boxplot figure.
         """
-        fig = px.box(self._data, y=self._response, points="all", title='Box Plot')
+        fig = px.box(self._data, y=self._response,
+                     points="all", title='Box Plot')
         fig.update_layout(
             plot_bgcolor="white",  # White background
             legend=dict(bgcolor='rgba(0,0,0,0)'),
@@ -437,7 +441,8 @@ class DataAnalysis:
         """
         fig = px.scatter(x=np.arange(1, len(self._data[self._response]) + 1),
                          y=self._data[self._response],
-                         labels={'x': 'Measurement number', 'y': self._response},
+                         labels={'x': 'Measurement number',
+                                 'y': self._response},
                          title='Scatter Plot')
         fig.update_layout(
             plot_bgcolor="white",  # White background
@@ -482,7 +487,7 @@ class DataAnalysis:
             plot_kws={"scatter_kws": {"alpha": 0.1}},
         )
         return fig
-    
+
     def plot_pairplot_plotly(self):
         """
         Plot a pairplot for the data using plotly.
@@ -492,7 +497,7 @@ class DataAnalysis:
         fig : plotly.graph_objs.Figure
             The plotly figure.
         """
-        
+
         # Get the column names
         columns = self._data.columns
         n_cols = len(columns)
@@ -501,8 +506,8 @@ class DataAnalysis:
         fig = make_subplots(
             rows=n_cols,
             cols=n_cols,
-            shared_xaxes=True,  
-            shared_yaxes=True,  
+            shared_xaxes=True,
+            shared_yaxes=True,
             vertical_spacing=0.05,
             horizontal_spacing=0.05
         )
@@ -521,7 +526,7 @@ class DataAnalysis:
                         kde = stats.gaussian_kde(data)
                         kde_y = kde(kde_x)
                         # Scale to match y-axis (needed for top left corner)
-                        kde_y = kde_y / kde_y.max() * np.max(y_data.dropna())  
+                        kde_y = kde_y / kde_y.max() * np.max(y_data.dropna())
 
                         # Add KDE plot to diagonal
                         fig.add_trace(
@@ -568,22 +573,27 @@ class DataAnalysis:
                         ytype = y_clean.dtype
                         xtype = x_clean.dtype
                         unique_x = x_clean.unique()
-                        if len(x_clean) > 1 and len(unique_x)>1 and ytype != 'object' and xtype != 'object':
+                        if len(x_clean) > 1 and len(unique_x) > 1 and ytype != 'object' and xtype != 'object':
                             # Calculate regression parameters
-                            slope, intercept, r_value, p_value, std_err = stats.linregress(x_clean, y_clean)
-                            x_range = np.linspace(x_clean.min(), x_clean.max(), 100)
+                            slope, intercept, r_value, p_value, std_err = stats.linregress(
+                                x_clean, y_clean)
+                            x_range = np.linspace(
+                                x_clean.min(), x_clean.max(), 100)
                             y_pred = slope * x_range + intercept
 
                             # Standard error of estimate
                             y_fit = slope * x_clean + intercept
                             residuals = y_clean - y_fit
                             dof = len(x_clean) - 2
-                            residual_std_error = np.sqrt(np.sum(residuals**2) / dof)
+                            residual_std_error = np.sqrt(
+                                np.sum(residuals**2) / dof)
 
                             mean_x = np.mean(x_clean)
                             t_val = t.ppf(0.975, dof)  # 95% confidence
 
-                            se_line = residual_std_error * np.sqrt(1/len(x_clean) + (x_range - mean_x)**2 / np.sum((x_clean - mean_x)**2))
+                            se_line = residual_std_error * \
+                                np.sqrt(1/len(x_clean) + (x_range - mean_x)
+                                        ** 2 / np.sum((x_clean - mean_x)**2))
                             y_upper = y_pred + t_val * se_line
                             y_lower = y_pred - t_val * se_line
 
@@ -662,9 +672,9 @@ class DataAnalysis:
                 row=i+1,
                 col=1
             )
-            
+
         return fig
-    
+
     def plot_corr(self):
         """
         Plot a correlation matrix for the data.
@@ -679,11 +689,12 @@ class DataAnalysis:
         # Apply mask - replace upper triangle with NaN values
         corr_matrix_lower = corr_matrix.copy()
         corr_matrix_lower.values[mask] = np.nan
-        
+
         fig = px.imshow(
             corr_matrix_lower,
             text_auto='.2f',  # Display correlation values
-            color_continuous_scale='RdBu_r',  # Red to Blue color scale (reversed)
+            # Red to Blue color scale (reversed)
+            color_continuous_scale='RdBu_r',
             zmin=-1,  # Minimum correlation value
             zmax=1,   # Maximum correlation value
             aspect="auto",  # Keep aspect ratio adaptive
@@ -723,7 +734,7 @@ class DataAnalysis:
                 linewidth=1,
                 linecolor="black",  # Black border
                 mirror=True
-            ), 
+            ),
             height=600,
             width=600
         )
@@ -737,7 +748,7 @@ class DataAnalysis:
         Parameters
         ----------
         order : int, optional
-            The order of the polynomial. Default is 1.
+            The order of the polynomial. Default is ``1``.
         quadratic : list, optional
             The list of quadratic factors. Default is an empty list.
 
@@ -784,7 +795,7 @@ class DataAnalysis:
         Parameters
         ----------
         order : int, optional
-            The order of the polynomial. Default is 1. The parameter 
+            The order of the polynomial. Default is ``1``. The parameter 
             is not used if the equation is already set.
         quadratic : list, optional
             The list of quadratic factors. Default is an empty list.
@@ -824,11 +835,11 @@ class DataAnalysis:
                                     name='Actual vs Predicted'))
         # Add 1:1 line
         fig[0].add_shape(type="line",
-                      x0=min(self._data[self._response]),
-                      y0=min(self._data[self._response]),
-                      x1=max(self._data[self._response]),
-                      y1=max(self._data[self._response]),
-                      line=dict(color="Gray", width=1, dash="dash"))
+                         x0=min(self._data[self._response]),
+                         y0=min(self._data[self._response]),
+                         x1=max(self._data[self._response]),
+                         y1=max(self._data[self._response]),
+                         line=dict(color="Gray", width=1, dash="dash"))
         fig[0].update_layout(
             plot_bgcolor="white",  # White background
             legend=dict(bgcolor='rgba(0,0,0,0)'),
@@ -866,7 +877,8 @@ class DataAnalysis:
         error = self._linear_model.bse.rename_axis('terms').reset_index()[1:]
         error.columns = ['terms', 'error']
         res['error'] = error['error']
-        res['pvalue'] = [self._linear_model.pvalues[res['terms']].iloc[i] for i in range(len(res))]
+        res['pvalue'] = [self._linear_model.pvalues[res['terms']].iloc[i]
+                         for i in range(len(res))]
 
         # Sort by p-values
         res = res.sort_values(by='pvalue', ascending=False)
@@ -878,7 +890,8 @@ class DataAnalysis:
 
         # Add bar plot
         fig[1].add_trace(go.Bar(
-            y=[term.replace('I(', '').replace('C(', '').replace(')', '').replace(' ** ', '^') for term in res['terms']],
+            y=[term.replace('I(', '').replace('C(', '').replace(')', '').replace(
+                ' ** ', '^') for term in res['terms']],
             x=res['slope'],
             error_x=dict(type='data', array=res['error']),
             marker_color=colors,
@@ -897,7 +910,8 @@ class DataAnalysis:
                 orientation="h",  # Horizontal orientation
                 y=1.1  # Place legend on top
             ),
-            margin=dict(l=10, r=150, t=50, b=50),  # Increase right margin for annotations
+            # Increase right margin for annotations
+            margin=dict(l=10, r=150, t=50, b=50),
             xaxis=dict(
                 showgrid=True,  # Enable grid
                 gridcolor="lightgray",  # Light gray grid lines
@@ -952,57 +966,66 @@ class DataAnalysis:
         Parameters
         ----------
         kwargs : dict
-            Additional keyword arguments for the model. Overrides default parameters.
-            
-        Default Parameters by Model Type
-        --------------------------------
-        - **ElasticNetCV:**
-            - l1_ratio : list, default=[0.1, 0.5, 0.7, 0.9, 0.95, 0.99, 1.0].
-                List of L1 ratios to try.
-            - cv : int, default=5.
-                Cross-validation folds.
-            - max_iter : int, default=1000.
-                Maximum iterations.
-        - **RidgeCV:**
-            - alphas : list, default=[0.1, 1.0, 10.0].
-                List of alpha values to try.
-            - cv : int, default=5.
-                Cross-validation folds.
-        - **LinearRegression:**
-            - fit_intercept : bool, default=True.
-                Whether to calculate the intercept.
-        - **RandomForest:**
-            - n_estimators : int, default=100.
-                Number of trees in the forest.
-            - max_depth : int or None, default=None.
-                Maximum depth of trees.
-            - min_samples_split : int, default=2.
-                Minimum samples required to split a node.
-            - random_state : int, default=42.
-                Random seed for reproducibility.
-        - **GaussianProcess:**
-            - kernel : kernel object, default=None.
-                Kernel for the Gaussian Process.
-            - alpha : float, default=1e-10.
-                Value added to diagonal of kernel matrix.
-            - normalize_y : bool, default=True.
-                Normalize target values.
-            - random_state : int, default=42.
-                Random seed for reproducibility.
-        - **GradientBoosting:**
-            - n_estimators : int, default=100.
-                Number of boosting stages.
-            - learning_rate : float, default=0.1.
-                Learning rate.
-            - max_depth : int, default=3.
-                Maximum depth of trees.
-            - random_state : int, default=42.
-                Random seed for reproducibility.
+            Additional keyword arguments for the model. Overrides default
+            parameters. See the `Notes` section for the defaults used by
+            each model type.
 
         Returns
         -------
         object
             The fitted machine learning model.
+
+        Notes
+        -----
+        Default parameters by model:
+
+        ElasticNetCV
+            ``l1_ratio`` : list, default=[0.1, 0.5, 0.7, 0.9, 0.95, 0.99, 1.0]
+                List of L1 ratios to try.
+            ``cv`` : int, default=5
+                Cross-validation folds.
+            ``max_iter`` : int, default=1000
+                Maximum iterations.
+
+        RidgeCV
+            ``alphas`` : list, default=[0.1, 1.0, 10.0]
+                List of alpha values to try.
+            ``cv`` : int, default=5
+                Cross-validation folds.
+
+        LinearRegression
+            ``fit_intercept`` : bool, default=True
+                Whether to calculate the intercept.
+
+        RandomForest
+            ``n_estimators`` : int, default=100
+                Number of trees in the forest.
+            ``max_depth`` : int or None, default=None
+                Maximum depth of trees.
+            ``min_samples_split`` : int, default=2
+                Minimum samples required to split a node.
+            ``random_state`` : int, default=42
+                Random seed for reproducibility.
+
+        GaussianProcess
+            ``kernel`` : kernel object, default=None
+                Kernel for the Gaussian Process.
+            ``alpha`` : float, default=1e-10
+                Value added to diagonal of kernel matrix.
+            ``normalize_y`` : bool, default=True
+                Normalize target values.
+            ``random_state`` : int, default=42
+                Random seed for reproducibility.
+
+        GradientBoosting
+            ``n_estimators`` : int, default=100
+                Number of boosting stages.
+            ``learning_rate`` : float, default=0.1
+                Learning rate.
+            ``max_depth`` : int, default=3
+                Maximum depth of trees.
+            ``random_state`` : int, default=42
+                Random seed for reproducibility.
         """
         if self._model_type is None:
             raise ValueError("Model must be provided.")
@@ -1014,35 +1037,35 @@ class DataAnalysis:
                 X, y, test_size=self._split_size, random_state=42)
         else:
             X_train, X_test, y_train, y_test = X, X, y, y
-        
+
         # Default parameters for each model type
         default_params = {
             "ElasticNetCV": {"l1_ratio": [0.1, 0.5, 0.7, 0.9, 0.95, 0.99, 1.0],
-                            "cv": 5, 
-                            "max_iter": 1000},
-            "RidgeCV": {"alphas": [0.1, 1.0, 10.0], 
+                             "cv": 5,
+                             "max_iter": 1000},
+            "RidgeCV": {"alphas": [0.1, 1.0, 10.0],
                         "cv": 5},
             "LinearRegression": {"fit_intercept": True},
-            "RandomForest": {"n_estimators": 100, 
-                            "max_depth": None,
-                            "min_samples_split": 2,
-                            "random_state": 42},
-            "GaussianProcess": {"kernel": None, 
+            "RandomForest": {"n_estimators": 100,
+                             "max_depth": None,
+                             "min_samples_split": 2,
+                             "random_state": 42},
+            "GaussianProcess": {"kernel": None,
                                 "alpha": 1e-10,
                                 "normalize_y": True,
                                 "random_state": 42},
             "GradientBoosting": {"n_estimators": 100,
-                                "learning_rate": 0.1,
-                                "max_depth": 3,
-                                "random_state": 42}
+                                 "learning_rate": 0.1,
+                                 "max_depth": 3,
+                                 "random_state": 42}
         }
-        
+
         # Get default parameters for the selected model
         model_defaults = default_params.get(self._model_type, {})
-        
+
         # Override defaults with any provided kwargs
         model_params = {**model_defaults, **kwargs}
-        
+
         if self._model_type == "ElasticNetCV":
             self._model = make_pipeline(StandardScaler(),
                                         ElasticNetCV(**model_params))
@@ -1061,7 +1084,7 @@ class DataAnalysis:
         elif self._model_type == "GradientBoosting":
             self._model = make_pipeline(StandardScaler(),
                                         GradientBoostingRegressor(**model_params))
-        
+
         # Fit the model
         self._model.fit(X_train, y_train)
         return self._model
@@ -1073,7 +1096,7 @@ class DataAnalysis:
         Parameters
         ----------
         features_in_log : bool, optional
-            Whether to plot the feature importances in log scale. Default is False.
+            Whether to plot the feature importances in log scale. Default is ``False``.
 
         Returns
         -------
@@ -1098,21 +1121,21 @@ class DataAnalysis:
         fig[0] = go.Figure()
         # Add actual vs predicted line
         fig[0].add_trace(go.Scatter(x=y_train,
-                                 y=self._model.predict(X_train),
-                                 mode='markers',
-                                 marker=dict(size=12, color='royalblue'),
-                                 name='Training'))
+                                    y=self._model.predict(X_train),
+                                    mode='markers',
+                                    marker=dict(size=12, color='royalblue'),
+                                    name='Training'))
         if self._split_size > 0:
             fig[0].add_trace(go.Scatter(x=y_test,
-                                    y=self._model.predict(X_test),
-                                    mode='markers',
-                                    marker=dict(size=12, color='orange'),
-                                    name='Validation'))
+                                        y=self._model.predict(X_test),
+                                        mode='markers',
+                                        marker=dict(size=12, color='orange'),
+                                        name='Validation'))
         # Add 1:1 line
         fig[0].add_shape(type="line",
-                      x0=min(y_train), y0=min(y_train),
-                      x1=max(y_train), y1=max(y_train),
-                      line=dict(color="Gray", width=1, dash="dash"))
+                         x0=min(y_train), y0=min(y_train),
+                         x1=max(y_train), y1=max(y_train),
+                         line=dict(color="Gray", width=1, dash="dash"))
         fig[0].update_layout(
             plot_bgcolor="white",  # White background
             legend=dict(bgcolor='rgba(0,0,0,0)'),
@@ -1160,7 +1183,8 @@ class DataAnalysis:
             fig[1].add_trace(go.Bar(
                 y=[f"{pos_coefs_names[i]}" for i in range(len(pos_coefs))],
                 x=mean_coefs[mean_coefs > 0],
-                error_x=dict(type='data', array=std_coefs[mean_coefs > 0], visible=True),
+                error_x=dict(
+                    type='data', array=std_coefs[mean_coefs > 0], visible=True),
                 orientation='h',
                 marker_color='royalblue',
                 name='Positive'
@@ -1168,7 +1192,8 @@ class DataAnalysis:
             fig[1].add_trace(go.Bar(
                 y=[f"{neg_coefs_names[i]}" for i in range(len(neg_coefs))],
                 x=-mean_coefs[mean_coefs < 0],
-                error_x=dict(type='data', array=std_coefs[mean_coefs < 0], visible=True),
+                error_x=dict(
+                    type='data', array=std_coefs[mean_coefs < 0], visible=True),
                 orientation='h',
                 marker_color='orange',
                 name='Negative'
@@ -1229,7 +1254,7 @@ class DataAnalysis:
         Parameters
         ----------
         X : pd.DataFrame, optional
-            The input features. Default is None, which uses the original data.
+            The input features. Default is ``None``, which uses the original data.
 
         Returns
         -------
@@ -1244,7 +1269,8 @@ class DataAnalysis:
         # Encode the input data using the same encoders
         for factor in self._factors:
             if factor in self._encoders:
-                X[factor] = self._encoders[factor].transform(X[factor].astype(str))
+                X[factor] = self._encoders[factor].transform(
+                    X[factor].astype(str))
 
         predML = None
         predlin = None
@@ -1278,8 +1304,6 @@ class DataAnalysis:
             raise Warning("No model has been trained yet.")
 
 
-
-
 def bootstrap_coefficients(mod, X, y, n_bootstrap=100, random_state=None):
     """
     Perform bootstrap resampling to estimate the variability of model coefficients.
@@ -1293,7 +1317,7 @@ def bootstrap_coefficients(mod, X, y, n_bootstrap=100, random_state=None):
     y : pd.Series
         The target variable.
     n_bootstrap : int, optional
-        The number of bootstrap samples. Default is 100.
+        The number of bootstrap samples. Default is ``100``.
     random_state : int, optional
         The seed for the random number generator.
 
@@ -1308,15 +1332,18 @@ def bootstrap_coefficients(mod, X, y, n_bootstrap=100, random_state=None):
 
     for _ in range(n_bootstrap):
         # Resample the data
-        indices = np.random.choice(np.arange(n_samples), size=n_samples, replace=True)
+        indices = np.random.choice(
+            np.arange(n_samples), size=n_samples, replace=True)
         X_resample, y_resample = X.values[indices], y.values[indices]
 
         # Fit the model
         if isinstance(mod, RidgeCV):
-            model = RidgeCV(alphas=np.logspace(-3, 3, 10)).fit(X_resample, y_resample)
+            model = RidgeCV(alphas=np.logspace(-3, 3, 10)
+                            ).fit(X_resample, y_resample)
             results.append(model.coef_)
         elif isinstance(mod, ElasticNetCV):
-            model = ElasticNetCV(alphas=np.logspace(-3, 3, 10), l1_ratio=0.5).fit(X_resample, y_resample)
+            model = ElasticNetCV(alphas=np.logspace(-3, 3, 10),
+                                 l1_ratio=0.5).fit(X_resample, y_resample)
             results.append(model.coef_)
         elif isinstance(mod, LinearRegression):
             model = LinearRegression().fit(X_resample, y_resample)
@@ -1330,7 +1357,8 @@ def bootstrap_coefficients(mod, X, y, n_bootstrap=100, random_state=None):
         elif isinstance(mod, GaussianProcessRegressor):
             # Gaussian Process does not have coefficients or feature importances
             model = GaussianProcessRegressor().fit(X_resample, y_resample)
-            results.append(np.zeros(X.shape[1]))  # Placeholder for Gaussian Process
+            # Placeholder for Gaussian Process
+            results.append(np.zeros(X.shape[1]))
         else:
             raise ValueError(f"Unsupported model type: {mod}")
 
